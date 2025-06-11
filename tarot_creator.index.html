@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>互動式塔羅占卜工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #fff;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #ffd700, #ffb347);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .question-input {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .question-input textarea {
+            width: 100%;
+            max-width: 600px;
+            height: 100px;
+            padding: 15px;
+            border: 2px solid #ffd700;
+            border-radius: 10px;
+            font-size: 16px;
+            resize: vertical;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+        }
+        
+        .question-input textarea::placeholder {
+            color: #666;
+        }
+        
+        .draw-button {
+            background: linear-gradient(45deg, #ffd700, #ffb347);
+            border: none;
+            padding: 15px 40px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            margin: 20px 10px;
+            transition: all 0.3s ease;
+            color: #333;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+        }
+        
+        .draw-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+        }
+        
+        .card-deck {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        
+        .card-back {
+            width: 80px;
+            height: 120px;
+            background: linear-gradient(145deg, #4a4a4a, #2a2a2a);
+            border: 2px solid #ffd700;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 2em;
+            position: relative;
+        }
+        
+        .card-back:hover {
+            transform: scale(1.05) translateY(-5px);
+            box-shadow: 0 10px 20px rgba(255, 215, 0, 0.3);
+        }
+        
+        .card-back.selected {
+            transform: rotateY(180deg);
+            background: linear-gradient(145deg, #ffffff, #e6e6e6);
+            color: #333;
+        }
+        
+        .reading-area {
+            margin-top: 40px;
+            display: none;
+        }
+        
+        .cards-display {
+            display: flex;
+            justify-content: space-around;
+            gap: 20px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        
+        .drawn-card {
+            background: linear-gradient(145deg, #ffffff, #e6e6e6);
+            border-radius: 15px;
+            padding: 20px;
+            width: 250px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            color: #333;
+            text-align: center;
+            border: 3px solid #ffd700;
+            animation: cardReveal 0.6s ease-out;
+        }
+        
+        @keyframes cardReveal {
+            from {
+                opacity: 0;
+                transform: rotateY(90deg);
+            }
+            to {
+                opacity: 1;
+                transform: rotateY(0deg);
+            }
+        }
+        
+        .card-position {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #764ba2;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #ffd700;
+            padding-bottom: 5px;
+        }
+        
+        .card-name {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #667eea;
+            margin: 10px 0;
+        }
+        
+        .card-icon {
+            font-size: 2.5em;
+            margin: 10px 0;
+        }
+        
+        .card-meaning {
+            font-size: 0.9em;
+            line-height: 1.5;
+            color: #555;
+        }
+        
+        .interpretation {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+            border-left: 5px solid #ffd700;
+        }
+        
+        .interpretation h3 {
+            color: #ffd700;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+        }
+        
+        .new-reading {
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        .theme-selector {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .theme-selector select {
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: 2px solid #ffd700;
+            font-size: 16px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔮 神秘塔羅占卜 🔮</h1>
+        
+        <div class="theme-selector">
+            <label for="readingTheme">選擇占卜主題：</label>
+            <select id="readingTheme">
+                <option value="love">愛情運勢</option>
+                <option value="career">事業發展</option>
+                <option value="money">財運狀況</option>
+                <option value="health">健康狀態</option>
+                <option value="general">綜合運勢</option>
+                <option value="decision">重要決定</option>
+                <option value="spiritual">靈性成長</option>
+            </select>
+        </div>
+        
+        <div class="question-input">
+            <textarea id="userQuestion" placeholder="在這裡輸入你的問題或想了解的事情...&#10;例如：我應該接受這個工作機會嗎？&#10;我和某人的關係會如何發展？&#10;我的創業計畫會成功嗎？"></textarea>
+            <br>
+            <button class="draw-button" onclick="showCardDeck()">開始占卜 ✨</button>
+        </div>
+        
+        <div id="cardDeck" class="card-deck" style="display: none;">
+            <p style="text-align: center; width: 100%; margin-bottom: 20px; font-size: 1.2em;">
+                靜心片刻，從下方選擇 3 張牌：
+            </p>
+            <div id="cardContainer"></div>
+        </div>
+        
+        <div id="readingArea" class="reading-area">
+            <div id="cardsDisplay" class="cards-display"></div>
+            <div id="interpretation" class="interpretation"></div>
+            <div class="new-reading">
+                <button class="draw-button" onclick="resetReading()">重新占卜 🔄</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 塔羅牌數據庫
+        const tarotCards = {
+            // 大秘儀
+            major: [
+                { name: "愚者", icon: "🃏", keywords: ["新開始", "冒險", "純真"], meanings: { positive: "充滿可能性的新開始，勇敢踏出第一步", negative: "魯莽行事，缺乏計畫" }},
+                { name: "魔術師", icon: "🎩", keywords: ["創造力", "技能", "意志力"], meanings: { positive: "具備實現目標的能力和資源", negative: "濫用技能，操控他人" }},
+                { name: "女祭司", icon: "🌙", keywords: ["直覺", "智慧", "神秘"], meanings: { positive: "相信內在智慧，靈性覺醒", negative: "過度被動，缺乏行動" }},
+                { name: "皇后", icon: "👑", keywords: ["豐盛", "創造", "母性"], meanings: { positive: "創造力豐沛，關係和諧", negative: "過度依賴，缺乏獨立" }},
+                { name: "皇帝", icon: "👨‍💼", keywords: ["權威", "結構", "控制"], meanings: { positive: "強而有力的領導，穩定的基礎", negative: "過度控制，獨裁專制" }},
+                { name: "教皇", icon: "⛪", keywords: ["傳統", "指導", "靈性"], meanings: { positive: "獲得智慧指導，遵循正道", negative: "過於教條，缺乏彈性" }},
+                { name: "戀人", icon: "💕", keywords: ["選擇", "關係", "和諧"], meanings: { positive: "重要的選擇，關係和諧", negative: "選擇困難，關係問題" }},
+                { name: "戰車", icon: "🏇", keywords: ["勝利", "意志", "前進"], meanings: { positive: "克服困難，勇往直前", negative: "失去控制，方向不明" }},
+                { name: "力量", icon: "🦁", keywords: ["內在力量", "勇氣", "耐心"], meanings: { positive: "以愛與耐心克服困難", negative: "缺乏自信，被情緒控制" }},
+                { name: "隱者", icon: "🕯️", keywords: ["內省", "指導", "尋找"], meanings: { positive: "內在探索，尋找真理", negative: "孤立自己，逃避現實" }},
+                { name: "命運之輪", icon: "🎡", keywords: ["變化", "命運", "循環"], meanings: { positive: "好運來臨，積極的改變", negative: "運氣不佳，失去控制" }},
+                { name: "正義", icon: "⚖️", keywords: ["平衡", "公正", "真相"], meanings: { positive: "公正的結果，道德選擇", negative: "不公平，缺乏平衡" }},
+                { name: "吊人", icon: "🙃", keywords: ["犧牲", "等待", "新視角"], meanings: { positive: "通過等待獲得新洞察", negative: "無謂的犧牲，停滯不前" }},
+                { name: "死神", icon: "💀", keywords: ["轉變", "結束", "重生"], meanings: { positive: "重要的轉變，新的開始", negative: "拒絕改變，停滯不前" }},
+                { name: "節制", icon: "🏺", keywords: ["平衡", "和諧", "節制"], meanings: { positive: "找到平衡，溫和的方法", negative: "極端行為，缺乏耐心" }},
+                { name: "惡魔", icon: "😈", keywords: ["束縛", "誘惑", "物慾"], meanings: { positive: "認清束縛，獲得解脫", negative: "被慾望控制，感到束縛" }},
+                { name: "塔", icon: "🗼", keywords: ["突變", "啟示", "解放"], meanings: { positive: "突破舊有模式，獲得自由", negative: "突然的變故，失去安全感" }},
+                { name: "星星", icon: "⭐", keywords: ["希望", "靈感", "治癒"], meanings: { positive: "充滿希望，靈感湧現", negative: "失去希望，缺乏方向" }},
+                { name: "月亮", icon: "🌙", keywords: ["幻象", "直覺", "恐懼"], meanings: { positive: "相信直覺，探索內在", negative: "被幻象迷惑，恐懼不安" }},
+                { name: "太陽", icon: "☀️", keywords: ["成功", "快樂", "活力"], meanings: { positive: "成功在望，充滿活力", negative: "過度樂觀，缺乏實際" }},
+                { name: "審判", icon: "📯", keywords: ["重生", "覺醒", "寬恕"], meanings: { positive: "獲得重生，內在覺醒", negative: "缺乏寬恕，拒絕改變" }},
+                { name: "世界", icon: "🌍", keywords: ["完成", "成就", "整合"], meanings: { positive: "達成目標，圓滿完成", negative: "缺乏成就感，半途而廢" }}
+            ]
+        };
+
+        let selectedCards = [];
+        let currentTheme = 'general';
+
+        function showCardDeck() {
+            const question = document.getElementById('userQuestion').value.trim();
+            const theme = document.getElementById('readingTheme').value;
+            currentTheme = theme;
+
+            if (!question) {
+                alert('請先輸入你的問題！');
+                return;
+            }
+
+            document.getElementById('cardDeck').style.display = 'block';
+            createCardDeck();
+        }
+
+        function createCardDeck() {
+            const container = document.getElementById('cardContainer');
+            container.innerHTML = '';
+            
+            // 創建12張牌供選擇
+            for (let i = 0; i < 12; i++) {
+                const cardElement = document.createElement('div');
+                cardElement.className = 'card-back';
+                cardElement.innerHTML = '🔮';
+                cardElement.onclick = () => selectCard(cardElement, i);
+                container.appendChild(cardElement);
+            }
+        }
+
+        function selectCard(element, index) {
+            if (selectedCards.length >= 3 || element.classList.contains('selected')) {
+                return;
+            }
+
+            element.classList.add('selected');
+            selectedCards.push(index);
+            element.innerHTML = `${selectedCards.length}`;
+
+            if (selectedCards.length === 3) {
+                setTimeout(() => {
+                    performReading();
+                }, 1000);
+            }
+        }
+
+        function performReading() {
+            const positions = ['過去/現況', '現在/挑戰', '未來/結果'];
+            const question = document.getElementById('userQuestion').value;
+            
+            // 隨機選擇塔羅牌
+            const drawnCards = selectedCards.map((_, index) => {
+                const randomCard = tarotCards.major[Math.floor(Math.random() * tarotCards.major.length)];
+                const isReversed = Math.random() < 0.3; // 30% 機率逆位
+                return {
+                    ...randomCard,
+                    position: positions[index],
+                    reversed: isReversed
+                };
+            });
+
+            displayReading(drawnCards, question);
+        }
+
+        function displayReading(cards, question) {
+            const cardsDisplay = document.getElementById('cardsDisplay');
+            const interpretation = document.getElementById('interpretation');
+            
+            // 顯示牌面
+            cardsDisplay.innerHTML = '';
+            cards.forEach(card => {
+                const cardElement = document.createElement('div');
+                cardElement.className = 'drawn-card';
+                cardElement.innerHTML = `
+                    <div class="card-position">${card.position}</div>
+                    <div class="card-icon">${card.icon}</div>
+                    <div class="card-name">${card.name}${card.reversed ? ' (逆位)' : ''}</div>
+                    <div class="card-meaning">
+                        ${card.reversed ? card.meanings.negative : card.meanings.positive}
+                    </div>
+                `;
+                cardsDisplay.appendChild(cardElement);
+            });
+
+            // 生成解讀
+            const interpretationText = generateInterpretation(cards, question);
+            interpretation.innerHTML = `
+                <h3>🌟 塔羅解讀</h3>
+                <p><strong>你的問題：</strong>${question}</p>
+                <br>
+                ${interpretationText}
+            `;
+
+            document.getElementById('readingArea').style.display = 'block';
+            document.getElementById('cardDeck').style.display = 'none';
+        }
+
+        function generateInterpretation(cards, question) {
+            const themeAdvice = {
+                love: "在愛情方面",
+                career: "在事業發展上",
+                money: "在財務狀況上",
+                health: "在健康方面",
+                general: "綜合來看",
+                decision: "關於這個決定",
+                spiritual: "在靈性成長上"
+            };
+
+            let interpretation = `<p><strong>${themeAdvice[currentTheme]}：</strong></p>`;
+            
+            interpretation += `<p><strong>過去/現況：</strong>${cards[0].name}${cards[0].reversed ? '(逆位)' : ''}顯示了你目前的狀態。${cards[0].reversed ? cards[0].meanings.negative : cards[0].meanings.positive}</p>`;
+            
+            interpretation += `<p><strong>現在/挑戰：</strong>${cards[1].name}${cards[1].reversed ? '(逆位)' : ''}代表你現在面臨的挑戰或需要注意的事項。${cards[1].reversed ? cards[1].meanings.negative : cards[1].meanings.positive}</p>`;
+            
+            interpretation += `<p><strong>未來/結果：</strong>${cards[2].name}${cards[2].reversed ? '(逆位)' : ''}預示了可能的結果或發展方向。${cards[2].reversed ? cards[2].meanings.negative : cards[2].meanings.positive}</p>`;
+
+            // 根據主題給出具體建議
+            const advice = getThemeSpecificAdvice(currentTheme, cards);
+            interpretation += `<p><strong>塔羅師的建議：</strong>${advice}</p>`;
+
+            return interpretation;
+        }
+
+        function getThemeSpecificAdvice(theme, cards) {
+            const positiveCards = cards.filter(card => !card.reversed).length;
+            const negativeCards = cards.filter(card => card.reversed).length;
+
+            if (positiveCards >= 2) {
+                switch(theme) {
+                    case 'love': return '愛情運勢看起來相當不錯！保持開放的心態，真誠地表達自己的感受。';
+                    case 'career': return '事業發展的時機已經成熟，勇敢地抓住機會，展現你的能力。';
+                    case 'money': return '財運頗佳，但仍需謹慎理財，避免不必要的支出。';
+                    case 'health': return '健康狀況良好，繼續保持規律的生活作息和運動習慣。';
+                    case 'decision': return '這個決定對你來說是正面的，相信你的直覺並勇敢行動。';
+                    case 'spiritual': return '你正在靈性成長的正確道路上，繼續深入探索內在世界。';
+                    default: return '整體運勢相當不錯，保持積極正面的態度，好運將會持續。';
+                }
+            } else {
+                switch(theme) {
+                    case 'love': return '愛情方面需要更多的耐心和理解，先處理好自己的情緒問題。';
+                    case 'career': return '事業發展可能會遇到一些挑戰，需要重新調整策略和方向。';
+                    case 'money': return '財務狀況需要謹慎處理，避免冒險投資，先穩定基礎。';
+                    case 'health': return '注意身心健康，適度休息，必要時尋求專業協助。';
+                    case 'decision': return '這個決定需要更謹慎的考慮，建議先收集更多資訊再行動。';
+                    case 'spiritual': return '靈性成長路上會有些阻礙，但這正是學習和成長的機會。';
+                    default: return '目前可能面臨一些挑戰，保持冷靜和耐心，困難終將過去。';
+                }
+            }
+        }
+
+        function resetReading() {
+            selectedCards = [];
+            document.getElementById('userQuestion').value = '';
+            document.getElementById('readingArea').style.display = 'none';
+            document.getElementById('cardDeck').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
